@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(RayTracing VERSION 1.0.0)
+cmake_policy(VERSION 3.5)
+
+add_subdirectory(1-OutputImage)
+add_subdirectory(2-Vec3)
+add_subdirectory(3-RayAndCamera)
+add_subdirectory(4-AddingSphere)
+add_subdirectory(5-SurfaceNormal)
+
+#add_subdirectory(library)
