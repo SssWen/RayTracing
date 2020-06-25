@@ -12,5 +12,6 @@ add_subdirectory(6-Antialiasing)
 add_subdirectory(7-Diffuse_GammaCorrect)
 add_subdirectory(8-Diffuse_Material)
 add_subdirectory(9-Metal_Material)
+add_subdirectory(10-Dieletric_Material)
 
 #add_subdirectory(library)
