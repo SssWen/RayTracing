@@ -8,5 +8,6 @@ add_subdirectory(2-Vec3)
 add_subdirectory(3-RayAndCamera)
 add_subdirectory(4-AddingSphere)
 add_subdirectory(5-SurfaceNormal)
+add_subdirectory(6-Antialiasing)
 
 #add_subdirectory(library)
