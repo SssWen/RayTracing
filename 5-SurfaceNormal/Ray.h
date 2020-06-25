@@ -25,7 +25,7 @@ public:
 
 	 // 将 tMin 和 tMax 直接放在 ray 中，简化设计
 	float tMin; // 决定射线起点
-	float tMax; // 决定射线终点
+	float tMax; // 决定射线终点,超出射线范围的碰撞体，不进行检测
 };
 
 void Ray::Init(const Vec3f & origin, const Vec3f & dir, float tMin, float tMax) {

@@ -6,14 +6,14 @@
 #include <memory>
 
 template<typename T>
-using Ptr = std::shared_ptr<T>; // 智能指针，简写
+using Ptr = std::shared_ptr<T>;
 
 
 class Material; // 前向声明
 
 struct HitRecord {
 	// float t; 我们在 Ray 中记录 tMin 和 tMax
-	Vec3f p; // 碰撞点
+	Vec3f p; // 射线碰撞点
 	Vec3f n; // 单位法向
 	Ptr<Material> material;
 };

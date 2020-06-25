@@ -4,6 +4,7 @@
 
 
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -52,6 +53,7 @@ int main() {
 	}
 
 	rst.close();
+	std::cout << "Output End" << std::endl;
 
 	return 0;
 }

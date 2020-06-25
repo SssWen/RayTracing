@@ -36,27 +36,26 @@ bool Sphere::Hit(Ray & ray, HitRecord & rec) const {
 	float c = oc.Dot(oc) - radius * radius;
 
 	float discriminant = b * b - a * c; // 化简
-	if (discriminant < 0.f)
+	if (discriminant < 0.f) // 没有交点
 		return false;
-
 	float sqrtDiscriminant = sqrt(discriminant);
-
 	float t0 = (-b - sqrtDiscriminant) / a; // 较小根
-	if (t0 <= ray.tMin || t0 >= ray.tMax) {
-		float t1 = (-b + sqrtDiscriminant) / a; // 较大根
-		if (t1 <= ray.tMin || t1 >= ray.tMax)
-			return false; // 根不再 tMin 和 tMax 间
-
-		ray.tMax = t1; // 更新 tMax
+	if (t0 < ray.tMax && t0 > ray.tMin)
+	{
+		ray.tMax = t0;
+		rec.p = ray.EndPos();
+		rec.n = (rec.p - center) / radius;
+		return true;
 	}
-	else
-		ray.tMax = t0; // 更新 tMax
-
-	rec.p = ray.EndPos();
-	rec.n = (rec.p - center) / radius; // 法线 = normalize(碰撞点-球心)
-	
-
-	return true;
+	t0 = (-b - sqrtDiscriminant) / a; // 较大根
+	if (t0 < ray.tMax && t0 > ray.tMin)
+	{
+		ray.tMax = t0;
+		rec.p = ray.EndPos();
+		rec.n = (rec.p - center) / radius;// 法线 = normalize(碰撞点-球心)
+		return true;
+	}
+	return false;
 }
 
 #endif // !_SPHERE_H_
