@@ -15,5 +15,6 @@ add_subdirectory(9-Metal_Material)
 add_subdirectory(10-Dieletric_Material)
 add_subdirectory(11-Camera)
 add_subdirectory(12-MultiThread)
+add_subdirectory(13-Scene)
 
 #add_subdirectory(library)
