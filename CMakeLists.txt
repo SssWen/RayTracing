@@ -13,5 +13,6 @@ add_subdirectory(7-Diffuse_GammaCorrect)
 add_subdirectory(8-Diffuse_Material)
 add_subdirectory(9-Metal_Material)
 add_subdirectory(10-Dieletric_Material)
+add_subdirectory(11-Camera)
 
 #add_subdirectory(library)
