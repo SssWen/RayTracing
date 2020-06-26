@@ -1,6 +1,6 @@
-project(9_Metal_Material VERSION 1.0.0)
+project(12-MultiThread VERSION 1.0.0)
 
-add_executable(9_Metal_Material
+add_executable(12-MultiThread
 	main.cpp
 	Vec3.h
 	Ray.h
@@ -10,5 +10,7 @@ add_executable(9_Metal_Material
 	Material.h
 	DiffuseMaterial.h
 	MetalMaterial.h
+	DieletricMaterial.h
+	Camera.h
 	Util.h
 )

@@ -9,4 +9,5 @@ add_executable(8-Diffuse_Material
 	Sphere.h
 	Material.h
 	DiffuseMaterial.h
+	Util.h
 )
