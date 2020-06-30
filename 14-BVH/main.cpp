@@ -5,6 +5,7 @@
 #include "MetalMaterial.h"
 #include "DieletricMaterial.h"
 #include "Camera.h"
+#include "BVHNode.h"
 
 
 #include <fstream>
@@ -17,12 +18,13 @@ using namespace std;
 const Vec3f Sky(const Ray & ray);
 const Vec3f Trace(Ptr<Hitable> scene, Ray & ray);
 void SaveImg(const vector<vector<Vec3f>> & img);
-Ptr<HitableList> GenScene();
+Ptr<HitableList> GenScene1();
+Ptr<Hitable> GenScene();
 
 int main() {
-	int width = 200;
-	int height = 100;
-	int sampleNum = 10;
+	int width = 800;
+	int height = 400;
+	int sampleNum = 32;
 	int cpuNum = Util::NumCPU();
 	// 相机参数
 	Vec3f pos(13, 2, 3);
@@ -32,7 +34,8 @@ int main() {
 	float aspect = float(width) / float(height);
 	float aperture = 0.1f;
 	Camera camera(pos, target, vfov, aspect, aperture, focusDist);
-	Ptr<HitableList> scene = GenScene();
+	//Ptr<HitableList> scene = GenScene();
+	Ptr<Hitable> scene = GenScene();
 	vector<vector<Vec3f>> img(height, vector<Vec3f>(width));
 	vector<thread> workers;	
 	vector<int> pixelNums(cpuNum, 0);
@@ -78,7 +81,41 @@ int main() {
 	printf("totle time = %f second\n", (float)(end - start)/ CLOCKS_PER_SEC);//秒
 	return 0;
 }
-Ptr<HitableList> GenScene() {	
+Ptr<Hitable> GenScene() {
+	int n = 500;
+	vector<Ptr<Hitable>> balls; // 数组方式存放 碰撞体
+
+	auto ground = Sphere::New({ 0, -1000, 0 }, 1000.f, DiffuseMaterial::New(Vec3f{ 0.5f }));
+	balls.push_back(ground);
+
+	int i = 1;
+	for (int a = -11; a < 11; a++) {
+		for (int b = -11; b < 11; b++) {
+			float choose_mat = Util::RandF();
+			Vec3f center(a + 0.9f*Util::RandF(), 0.2f, b + 0.9f*Util::RandF());
+			if ((center - Vec3f(4, 0.2, 0)).Norm() > 0.9f) {
+				Ptr<Material> material;
+				if (choose_mat < 0.8f) // diffuse
+					material = DiffuseMaterial::New({ Util::RandF()*Util::RandF(), Util::RandF()*Util::RandF(), Util::RandF()*Util::RandF() });
+				else if (choose_mat < 0.95f) // metal
+					material = MetalMaterial::New({ 0.5f*(1 + Util::RandF()), 0.5f*(1.f + Util::RandF()), 0.5f*(1.f + Util::RandF()) }, 0.5f*Util::RandF());
+				else // glass
+					material = DieletricMaterial::New(1.5f);
+
+				balls.push_back(Sphere::New(center, 0.2f, material));
+			}
+		}
+	}
+
+	balls.push_back(Sphere::New({ 0, 1, 0 }, 1.f, DieletricMaterial::New(1.5f)));
+	balls.push_back(Sphere::New({ -4, 1, 0 }, 1.f, DiffuseMaterial::New({ 0.4, 0.2, 0.1 })));
+	balls.push_back(Sphere::New({ 4, 1, 0 }, 1.f, MetalMaterial::New({ 0.7, 0.6, 0.5 }, 0.f)));
+
+	return BVHNode::Build(balls);
+}
+
+// 使用list,要对场景中所有物体进行检测,只是简单的根据射线的min,max 来排除碰撞体,
+Ptr<HitableList> GenScene1() {	
 	auto balls = HitableList::New();
 	auto ground = Sphere::New({ 0, -1000, 0 }, 1000.f, DiffuseMaterial::New(Vec3f{ 0.5f }));
 	balls->push_back(ground);
@@ -127,19 +164,15 @@ void SaveImg(const vector<vector<Vec3f>> & img) {
 }
 const Vec3f Trace(Ptr<Hitable> scene, Ray & ray) {
 	HitRecord rec;
-	// 碰撞到，就再次沿着【碰撞点】法线方向随机进行漫反射，递归遍历，结束条件：没有碰撞，
+	// 碰撞到，就再次沿着【碰撞点】法线方向随机进行根据不同的材质
+	// 进行漫反射或镜面反射,折射等，递归遍历，结束条件：没有碰撞，
+	// 主要是回去 rec的法线向量,起点
 	if (scene->Hit(ray, rec))
 	{
-		// 模拟漫反射，当前碰撞点，沿着法线方向周围，再次射出一条射线
-		//Vec3f dir = rec.n + Util::RandInSphere();
-		//Ray newRay(rec.p, dir.Normalize());
-		//return 0.5f * Trace(scene, newRay); // 每次反射一次，光照衰减一半
-
-		auto scatterRst = rec.material->Scatter(ray, rec); // 获取材质信息,反射方向,衰减参数
-		if (!scatterRst.isScatter) // 反射角与法线相反,进入表面内部,表示光线被完全吸收
+		auto scatterRst = rec.material->Scatter(ray, rec); // 获取材质信息,反射起点,方向,衰减参数
+		if (!scatterRst.isScatter) // 反射角与法线相反,进入表面内部,表示光线被完全吸收,表现黑色
 			return Vec3f(0);
 		return scatterRst.attenuation * Trace(scene, scatterRst.ray);
-
 	}
 	return Sky(ray);// 未碰撞到，绘制天空背景
 	// 最后的颜色为，scatterRst.attenuation^反射次数*Sky(ray)

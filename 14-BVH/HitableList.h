@@ -17,7 +17,7 @@ public:
 
 public:
 	virtual bool Hit(Ray & ray, HitRecord & rec) const override;
-	
+	virtual const AABB GetBox() const override;
 };
 
 // ------------- й╣ож
@@ -29,6 +29,12 @@ bool HitableList::Hit(Ray & ray, HitRecord & rec) const {
 			isHit = true;
 	}
 	return isHit;
+}
+const AABB HitableList::GetBox() const {
+	AABB box;
+	for (auto hitable : *this)
+		box = box.UnionWith(hitable->GetBox());
+	return box;
 }
 
 

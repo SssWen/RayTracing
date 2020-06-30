@@ -14,6 +14,9 @@ public:
 	static Ptr<Sphere> New(const Vec3f & center, float radius, Ptr<Material> material = nullptr) {
 		return std::make_shared<Sphere>(center, radius, material);
 	}
+	virtual const AABB GetBox() const override {
+		return { center - Vec3f(radius), center + Vec3f(radius) };
+	}
 
 public:
 	virtual bool Hit(Ray & ray, HitRecord & rec) const override;

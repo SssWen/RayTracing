@@ -13,4 +13,6 @@ add_executable(14-BVH
 	DieletricMaterial.h
 	Camera.h
 	Util.h
+	BVHNode.h
+	AABB.h
 )
