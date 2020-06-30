@@ -3,7 +3,7 @@
 
 #include "Vec3.h"
 #include "Hitable.h"
-
+// https://zhuanlan.zhihu.com/p/144403802
 class AABB {
 public:
 	AABB(const Vec3f & minP = Vec3f(Util::LARGE_FLT), const Vec3f & maxP = Vec3f(-Util::LARGE_FLT))
