@@ -20,6 +20,7 @@ const Vec3f Sky(const Ray & ray);
 const Vec3f Trace(Ptr<Hitable> scene, Ray & ray);
 void SaveImg(const vector<vector<Vec3f>> & img);
 Ptr<HitableList> GenScene();
+Ptr<Hitable> GenRandomScene();
 
 int main() {
 	int width = 400;
@@ -34,7 +35,7 @@ int main() {
 	float aspect = float(width) / float(height);
 	float aperture = 0.1f;
 	Camera camera(pos, target, vfov, aspect, aperture, focusDist);	
-	Ptr<Hitable> scene = GenScene();
+	Ptr<Hitable> scene = GenRandomScene();
 	vector<vector<Vec3f>> img(height, vector<Vec3f>(width));
 	vector<thread> workers;	
 	vector<int> pixelNums(cpuNum, 0);
@@ -89,7 +90,40 @@ Ptr<HitableList> GenScene() {
 
 	return balls;
 }
+Ptr<Hitable> GenRandomScene() {
+	int n = 500;
+	vector<Ptr<Hitable>> balls; // 数组方式存放 碰撞体
+	auto texture = new Constant_Texture(Vec3f(0.4, 0.2, 0.1));
 
+	int i = 1;
+	for (int a = -11; a < 11; a++) {
+		for (int b = -11; b < 11; b++) {
+			float choose_mat = Util::RandF();
+			Vec3f center(a + 0.9f*Util::RandF(), 0.2f, b + 0.9f*Util::RandF());
+			if ((center - Vec3f(4, 0.2, 0)).Norm() > 0.9f) {
+				Ptr<Material> material;
+				if (choose_mat < 0.8f) // diffuse
+					material = DiffuseMaterial::New(new Constant_Texture(Vec3f(Util::RandF(), Util::RandF(), Util::RandF())));
+				else if (choose_mat < 0.95f) // metal
+					material = MetalMaterial::New({ 0.5f*(1 + Util::RandF()), 0.5f*(1.f + Util::RandF()), 0.5f*(1.f + Util::RandF()) }, 0.5f*Util::RandF());
+				else // glass
+					material = DieletricMaterial::New(1.5f);
+
+				balls.push_back(Sphere::New(center, 0.2f, material));
+			}
+		}
+	}
+
+	balls.push_back(Sphere::New({ 0, 1, 0 }, 1.f, DieletricMaterial::New(1.5f)));
+	balls.push_back(Sphere::New({ -4, 1, 0 }, 1.f, DiffuseMaterial::New(new Constant_Texture(Vec3f(0.4, 0.2, 0.1)))));
+	balls.push_back(Sphere::New({ 4, 1, 0 }, 1.f, MetalMaterial::New({ 0.7, 0.6, 0.5 }, 0.f)));
+
+
+	Texture* check_texture = new Check_Texture(new Constant_Texture(Vec3f(0.2, 0.3, 0.1)), new Constant_Texture(Vec3f(0.9)));
+	balls.push_back(Sphere::New({ 0, -1000, 0 }, 1000, DiffuseMaterial::New(check_texture)));
+
+	return BVHNode::Build(balls);
+}
 
 void SaveImg(const vector<vector<Vec3f>> & img) {
 	int width = img.front().size();
