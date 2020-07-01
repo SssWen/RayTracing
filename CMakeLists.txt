@@ -17,5 +17,6 @@ add_subdirectory(11-Camera)
 add_subdirectory(12-MultiThread)
 add_subdirectory(13-Scene)
 add_subdirectory(14-BVH)
+add_subdirectory(15-Texture)
 
 #add_subdirectory(library)
